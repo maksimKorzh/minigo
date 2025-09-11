@@ -1,0 +1,4 @@
+def move_to_coords(move):
+  col = ord(move[0])-ord('A')+(1 if ord(move[0]) <= ord('H') else 0)
+  row = goban.width-int(move[1:])-1
+  return col, row

@@ -18,8 +18,7 @@ while True:
     if 'pass'.upper() not in command:
       params = command.split()
       color = goban.BLACK if params[1] == 'B' else goban.WHITE
-      col = ord(params[2][0])-ord('A')+(1 if ord(params[2][0]) <= ord('H') else 0)
-      row = goban.width-int(params[2][1:])-1
+      col, row = goban.move_to_coords(params[2])
       goban.play(col, row, color)
       print('=\n')
     else:

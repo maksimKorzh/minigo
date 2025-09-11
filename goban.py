@@ -39,7 +39,7 @@ def print_board():
     if row < width-1: print()
   print('   ', 'A B C D E F G H J K L M N O P Q R S T'[:width*2-4])
   print('\n    Side to move:', ('BLACK' if side == 1 else 'WHITE'), file=sys.stderr)
-  print('\n              Ko:', ('None' if move_to_string(ko)[0] == '?' else move_to_string(ko)), file=sys.stderr)
+  print('\n              Ko:', ('None' if coords_to_move(ko)[0] == '?' else coords_to_move(ko)), file=sys.stderr)
   print()
 
 def print_groups():
@@ -83,7 +83,6 @@ def update_groups():
     for col in range(width):
       stone = board[row][col]
       if stone == FENCE or stone == EMPTY: continue
-
       if stone == BLACK:
         group = make_group(col, row, BLACK)
         if group not in groups[BLACK-1]: groups[BLACK-1].append(group)
@@ -165,8 +164,13 @@ def check_ladder(col, row, color):
   board = copy.deepcopy(current_board)
   return ladder
 
-def move_to_string(move):
+def coords_to_move(coords):
   global width
-  col = chr(move[0]-(1 if move[0]<=8 else 0)+ord('A'))
-  row = str(width-move[1]-1)
+  col = chr(coords[0]-(1 if coords[0]<=8 else 0)+ord('A'))
+  row = str(width-coords[1]-1)
   return col+row
+
+def move_to_coords(move):
+  col = ord(move[0])-ord('A')+(1 if ord(move[0]) <= ord('H') else 0)
+  row = width-int(move[1:])-1
+  return col, row
