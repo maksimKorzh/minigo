@@ -129,7 +129,7 @@ def play(col, row, color):
   move_history.append({
     'side': (3-color),
     'move': [col, row],
-  });
+  })
 
 def pass_move():
   global ko, side
@@ -137,9 +137,9 @@ def pass_move():
     'side': (3-side),
     'move': [NONE, NONE],
     'ko': ko
-  });
-  ko = [NONE, NONE];
-  side = 3 - side;
+  })
+  ko = [NONE, NONE]
+  side = 3 - side
 
 def is_ladder(col, row, color, first_run):
   group = make_group(col, row, color)
@@ -184,18 +184,65 @@ def board_to_tensor():
   for row in range(width-2):
     for col in range(width-2):
       bin_inputs[0, row, col] = 1
-      if board[row+1][col+1] == minigo: bin_inputs[1, row, col] = 1; print(f'minigo: {coords_to_move([col+1, row+1])}', file=sys.stderr)
-      if board[row+1][col+1] == player: bin_inputs[2, row, col] = 1; print(f'player: {coords_to_move([col+1, row+1])}', file=sys.stderr)
+      if board[row+1][col+1] == minigo: bin_inputs[1, row, col] = 1
+      if board[row+1][col+1] == player: bin_inputs[2, row, col] = 1
       if board[row+1][col+1] == minigo or board[row+1][col+1] == player:
         libs_black = len(make_group(col+1, row+1, BLACK)['liberties'])
         libs_white = len(make_group(col+1, row+1, WHITE)['liberties'])
-        if libs_black == 1 or libs_white == 1: bin_inputs[3, row, col] = 1; print(f'1 lib: {coords_to_move([col+1, row+1])}', file=sys.stderr)
-        if libs_black == 2 or libs_white == 2: bin_inputs[4, row, col] = 1; print(f'2 lib: {coords_to_move([col+1, row+1])}', file=sys.stderr)
-        if libs_black == 3 or libs_white == 3: bin_inputs[5, row, col] = 1; print(f'3 lib: {coords_to_move([col+1, row+1])}', file=sys.stderr)
+        if libs_black == 1 or libs_white == 1: bin_inputs[3, row, col] = 1
+        if libs_black == 2 or libs_white == 2: bin_inputs[4, row, col] = 1
+        if libs_black == 3 or libs_white == 3: bin_inputs[5, row, col] = 1
   if ko != [NONE, NONE]:
     col, row = ko
     bin_inputs[6, row-1, col-1] = 1
     print(f'ko: {coords_to_move([col, row])}', file=sys.stderr)
+  move_index = len(move_history)-1
+  if move_index >= 1 and move_history[move_index-1]['side'] == player:
+    prev_loc1 = move_history[move_index-1]['move']
+    print(prev_loc1, file=sys.stderr)
+    col = prev_loc1[0]-1
+    row = prev_loc1[1]-1
+    if prev_loc1: bin_inputs[7, row, col] = 1
+    if move_index >= 2 and move_history[move_index-2]['side'] == minigo:
+      prev_loc2 = move_history[move_index-2]['move']
+      col = prev_loc2[0]-1
+      row = prev_loc2[1]-1
+      if prev_loc2: bin_inputs[8, row, col] = 1
+      if move_index >= 3 and move_history[move_index-3]['side'] == player:
+        prev_loc3 = move_history[move_index-3]['move']
+        col = prev_loc3[0]-1
+        row = prev_loc3[1]-1
+        if prev_loc3: bin_inputs[9, row, col] = 1
+        if move_index >= 4 and move_history[move_index-4]['side'] == minigo:
+          prev_loc4 = move_history[move_index-4]['move']
+          col = prev_loc4[0]-1
+          row = prev_loc4[1]-1
+          if prev_loc4: bin_inputs[10, row, col] = 1
+          if move_index >= 5 and move_history[move_index-5]['side'] == player:
+            prev_loc5 = move_history[move_index-5]['move']
+            col = prev_loc5[0]-1
+            row = prev_loc5[1]-1
+            if prev_loc5: bin_inputs[11, row, col] = 1
+  return bin_inputs
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
