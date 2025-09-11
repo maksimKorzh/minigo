@@ -1,6 +1,5 @@
 import sys
-import copy
-import random
+import numpy as np
 from copy import deepcopy
 
 NONE = -1
@@ -15,9 +14,10 @@ board = [[]]
 side = NONE
 ko = [NONE, NONE]
 groups = []
+move_history = []
 
 def init_board():
-  global board, side, ko, groups
+  global board, side, ko, groups, move_history
   board = [[0 for _ in range(width)] for _ in range(width)]
   for row in range(width):
     for col in range(width):
@@ -26,8 +26,10 @@ def init_board():
   side = BLACK
   ko = [NONE, NONE]
   groups = [[], []]
+  move_history = []
 
 def print_board():
+  board_to_tensor()
   for row in range(width):
     for col in range(width):
       if col == 0 and row != 0 and row != width-1:
@@ -124,6 +126,20 @@ def play(col, row, color):
       for stone in group['stones']:
         board[stone[1]][stone[0]] = EMPTY
   side = (3-color)
+  move_history.append({
+    'side': (3-color),
+    'move': [col, row],
+  });
+
+def pass_move():
+  global ko, side
+  move_history.append({
+    'side': (3-side),
+    'move': [NONE, NONE],
+    'ko': ko
+  });
+  ko = [NONE, NONE];
+  side = 3 - side;
 
 def is_ladder(col, row, color, first_run):
   group = make_group(col, row, color)
@@ -156,10 +172,32 @@ def is_ladder(col, row, color, first_run):
 
 def check_ladder(col, row, color):
   global board
-  current_board = copy.deepcopy(board)
+  current_board = deepcopy(board)
   ladder = is_ladder(col, row, color, True)
-  board = copy.deepcopy(current_board)
+  board = deepcopy(current_board)
   return ladder
+
+def board_to_tensor():
+  bin_inputs = np.zeros((16, width-2, width-2), dtype=np.uint8)
+  minigo = side
+  player = (3-side)
+  for row in range(width-2):
+    for col in range(width-2):
+      bin_inputs[0, row, col] = 1
+      if board[row+1][col+1] == minigo: bin_inputs[1, row, col] = 1; print(f'minigo: {coords_to_move([col+1, row+1])}', file=sys.stderr)
+      if board[row+1][col+1] == player: bin_inputs[2, row, col] = 1; print(f'player: {coords_to_move([col+1, row+1])}', file=sys.stderr)
+      if board[row+1][col+1] == minigo or board[row+1][col+1] == player:
+        libs_black = len(make_group(col+1, row+1, BLACK)['liberties'])
+        libs_white = len(make_group(col+1, row+1, WHITE)['liberties'])
+        if libs_black == 1 or libs_white == 1: bin_inputs[3, row, col] = 1; print(f'1 lib: {coords_to_move([col+1, row+1])}', file=sys.stderr)
+        if libs_black == 2 or libs_white == 2: bin_inputs[4, row, col] = 1; print(f'2 lib: {coords_to_move([col+1, row+1])}', file=sys.stderr)
+        if libs_black == 3 or libs_white == 3: bin_inputs[5, row, col] = 1; print(f'3 lib: {coords_to_move([col+1, row+1])}', file=sys.stderr)
+  if ko != [NONE, NONE]:
+    col, row = ko
+    bin_inputs[6, row-1, col-1] = 1
+    print(f'ko: {coords_to_move([col, row])}', file=sys.stderr)
+
+
 
 def coords_to_move(coords):
   global width

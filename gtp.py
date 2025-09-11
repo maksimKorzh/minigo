@@ -22,9 +22,11 @@ while True:
       goban.play(col, row, color)
       print('=\n')
     else:
-      goban.side = (3-goban.side)
-      goban.ko = [goban.NONE, goban.NONE]
+      goban.pass_move()
       print('=\n')
   elif 'genmove' in command: print('= pass\n')
+  elif 'history' in command:
+    print(goban.move_history, goban.move_count, file=sys.stderr)
+    print('=\n')
   elif 'quit' in command: sys.exit()
   else: print('=\n')
