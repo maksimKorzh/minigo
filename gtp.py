@@ -27,13 +27,4 @@ while True:
       print('=\n')
   elif 'genmove' in command: print('= pass\n')
   elif 'quit' in command: sys.exit()
-  # DEBUG
-  elif 'ladder' in command:
-    params = command.split()
-    color = goban.BLACK if params[1] == 'B' else goban.WHITE
-    col, row = goban.move_to_coords(params[2])
-    ladder_move = goban.check_ladder(col, row, color)
-    ladder_solve = goban.coords_to_move(ladder_move) if ladder_move else 'None'
-    print(f'Ladder status for {params[2]} is {ladder_solve}', file=sys.stderr)
-    print('=\n')
   else: print('=\n')

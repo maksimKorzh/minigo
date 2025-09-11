@@ -112,16 +112,6 @@ def is_suicide(col, row, color):
   board[row][col] = EMPTY
   return suicide
 
-def is_atari(col, row, color):
-  atari = False
-  board[row][col] = color
-  marks = [[EMPTY for _ in range(width)] for _ in range(width)]
-  count(col, row, color, marks)
-  group = add_stones(marks, color)
-  if len(group['liberties']) == 1: atari = True
-  board[row][col] = EMPTY
-  return atari
-
 def play(col, row, color):
   global ko, side
   ko = [NONE, NONE]
