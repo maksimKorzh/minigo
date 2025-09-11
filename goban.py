@@ -145,6 +145,13 @@ def is_ladder(col, row, color, first_run):
     board[row][col] = color
     new_col = group['liberties'][0][0]
     new_row = group['liberties'][0][1]
+    for (dc, dr) in [(1,0), (-1,0), (0,1), (0,-1)]:
+      nc, nr = col+dc, row+dr
+      if board[nr][nc] == 3-color:
+        enemy_group = make_group(nc, nr, 3-color)
+        if len(enemy_group['liberties']) == 1:
+          board[row][col] = EMPTY
+          return 0
     if is_ladder(new_col, new_row, color, False): return 1
     board[row][col] = EMPTY
   if len(group['liberties']) == 2:
