@@ -29,7 +29,6 @@ def init_board():
   move_history = []
 
 def print_board():
-  board_to_tensor()
   for row in range(width):
     for col in range(width):
       if col == 0 and row != 0 and row != width-1:
@@ -177,6 +176,25 @@ def check_ladder(col, row, color):
   board = deepcopy(current_board)
   return ladder
 
+def enable_ladders(bin_inputs):
+  move = move_history[len(move_history)-1]
+  for row in range(width-2):
+    for col in range(width-2):
+      color = board[row+1][col+1]
+      if color == BLACK or color == WHITE:
+        libs_black = len(make_group(col+1, row+1, BLACK)['liberties'])
+        libs_white = len(make_group(col+1, row+1, WHITE)['liberties'])
+        if libs_black == 1 or libs_black == 2 or libs_white == 1 or libs_white == 2:
+          laddered = check_ladder(col+1, row+1, color)
+          if type(laddered) == int and laddered == 1:
+              bin_inputs[12, row, col] = 1
+              bin_inputs[13, row, col] = 1
+              bin_inputs[14, row, col] = 1
+          if type(laddered) == tuple:
+            col = laddered[0]-1
+            row = laddered[1]-1
+            bin_inputs[15, row, col] = 1
+
 def board_to_tensor():
   bin_inputs = np.zeros((16, width-2, width-2), dtype=np.uint8)
   minigo = side
@@ -195,11 +213,9 @@ def board_to_tensor():
   if ko != [NONE, NONE]:
     col, row = ko
     bin_inputs[6, row-1, col-1] = 1
-    print(f'ko: {coords_to_move([col, row])}', file=sys.stderr)
   move_index = len(move_history)-1
   if move_index >= 1 and move_history[move_index-1]['side'] == player:
     prev_loc1 = move_history[move_index-1]['move']
-    print(prev_loc1, file=sys.stderr)
     col = prev_loc1[0]-1
     row = prev_loc1[1]-1
     if prev_loc1: bin_inputs[7, row, col] = 1
@@ -223,28 +239,8 @@ def board_to_tensor():
             col = prev_loc5[0]-1
             row = prev_loc5[1]-1
             if prev_loc5: bin_inputs[11, row, col] = 1
+  enable_ladders(bin_inputs)
   return bin_inputs
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 def coords_to_move(coords):
   global width
