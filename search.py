@@ -5,7 +5,7 @@ from model import MinigoNet
 
 BOARD_SIZE = 19
 
-device = torch.device('cpu')
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model = MinigoNet()
 checkpoint = torch.load('minigo.pth', map_location=device)
 model.load_state_dict(checkpoint)

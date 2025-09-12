@@ -2,7 +2,7 @@ import torch
 from model import MinigoNet
 import os
 
-device = torch.device('cpu')
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model = MinigoNet().to(device)
 checkpoint = torch.load('./test/minigo.pth', map_location=device)
 model.load_state_dict(checkpoint)
