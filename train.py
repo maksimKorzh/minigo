@@ -64,4 +64,10 @@ torch.save({
 }, checkpoint_path)
 torch.save(model.state_dict(), 'minigo.pth')
 
+try:
+  from google.colab import files
+  files.download(checkpoint_path)
+  files.download('minigo.pth')
+except: pass
+
 print(f'Model checkpoint saved to {checkpoint_path}')
