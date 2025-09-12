@@ -252,6 +252,12 @@ def move_to_coords(move):
   row = width-int(move[1:])-1
   return col, row
 
-width=21
-init_board()
-print(board_to_tensor().shape)
+def load_sgf_move(move):
+  if len(move):
+    if ord(move[2]) < 97 or ord(move[2]) > 115: return -1
+    color = BLACK if move[0] == 'B' else WHITE;
+    col = ord(move[2])-97;
+    row = ord(move[3])-97;
+    sq = (row+1) * 21 + (col+1);
+    play(col+1, row+1, color);
+    return row * 19 + col;
