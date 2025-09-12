@@ -41,7 +41,8 @@ def build_training_batch(from_index, to_index):
   moves_tensor = torch.tensor(np.array(moves_batch), dtype=torch.int16)
   values_tensor = torch.tensor(np.array(values_batch), dtype=torch.float32)
   torch.save((states_tensor, moves_tensor, values_tensor), f'games_{from_index}-{to_index}.pt')
-  print(f"Saved batch with {len(states_batch)} samples")
+  print(f'Saved batch with {len(states_batch)} samples')
+  print(f'Used games {from_index}-{to_index} ({to_index-from_index} total) from {len(games)} available')
   states_batch.clear()
   moves_batch.clear()
 
