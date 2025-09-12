@@ -177,7 +177,6 @@ def check_ladder(col, row, color):
   return ladder
 
 def enable_ladders(bin_inputs):
-  move = move_history[len(move_history)-1]
   for row in range(width-2):
     for col in range(width-2):
       color = board[row+1][col+1]
@@ -252,3 +251,7 @@ def move_to_coords(move):
   col = ord(move[0])-ord('A')+(1 if ord(move[0]) <= ord('H') else 0)
   row = width-int(move[1:])-1
   return col, row
+
+width=21
+init_board()
+print(board_to_tensor().shape)
