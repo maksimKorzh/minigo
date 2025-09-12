@@ -4,9 +4,11 @@ import torch.nn.functional as F
 
 BLOCKS = 10
 FILTERS = 128
+INPUT_FEATURES = 16
+BOARD_SIZE = 19
 
 class ResidualBlock(nn.Module):
-  def __init__(self, FILTERS):
+  def __init__(self):
     super().__init__()
     self.conv1 = nn.Conv2d(FILTERS, FILTERS, kernel_size=3, padding=1, bias=False)
     self.bn1 = nn.BatchNorm2d(FILTERS)
@@ -24,26 +26,24 @@ class ResidualBlock(nn.Module):
     out = F.relu(out)
     return out
 
-class PolicyValueNet(nn.Module):
-  def __init__(self, input_features, board_size, input_FILTERS, FILTERS):
+class MinigoNet(nn.Module):
+  def __init__(self):
     super().__init__()
-    self.board_size = board_size
-    self.input_FILTERS = input_FILTERS
-    self.FILTERS = FILTERS
-    self.conv_in = nn.Conv2d(input_FILTERS, FILTERS, kernel_size=3, padding=1, bias=False)
+    self.board_size = BOARD_SIZE
+    self.conv_in = nn.Conv2d(INPUT_FEATURES, FILTERS, kernel_size=3, padding=1, bias=False)
     self.bn_in = nn.BatchNorm2d(FILTERS)
-    self.res_blocks = nn.Sequential(*[ResidualBlock(FILTERS) for _ in range(BLOCKS)])
+    self.res_blocks = nn.Sequential(*[ResidualBlock() for _ in range(BLOCKS)])
     self.conv_policy = nn.Conv2d(FILTERS, 2, kernel_size=1, bias=False)
     self.bn_policy = nn.BatchNorm2d(2)
-    self.fc_policy = nn.Linear(2 * board_size * board_size, board_size * board_size)
+    self.fc_policy = nn.Linear(2 * BOARD_SIZE * BOARD_SIZE, BOARD_SIZE * BOARD_SIZE)
     self.conv_value = nn.Conv2d(FILTERS, 1, kernel_size=1, bias=False)
     self.bn_value = nn.BatchNorm2d(1)
-    self.fc_value1 = nn.Linear(board_size * board_size, 64)
+    self.fc_value1 = nn.Linear(BOARD_SIZE * BOARD_SIZE, 64)
     self.fc_value2 = nn.Linear(64, 1)
 
   def forward(self, x):
     batch_size = x.size(0)
-    x = x.view(batch_size, self.input_FILTERS, self.board_size, self.board_size)
+    x = x.view(batch_size, INPUT_FEATURES, self.board_size, self.board_size)
     x = self.conv_in(x)
     x = self.bn_in(x)
     x = F.relu(x)
@@ -59,5 +59,5 @@ class PolicyValueNet(nn.Module):
     value = F.relu(value)
     value = value.view(batch_size, -1)
     value = F.relu(self.fc_value1(value))
-    value = torch.tanh(self.fc_value2(value))  # output in [-1, 1]
+    value = torch.tanh(self.fc_value2(value))
     return policy, value

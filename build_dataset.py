@@ -45,10 +45,10 @@ def build_training_batch(from_index, to_index):
   states_batch.clear()
   moves_batch.clear()
 
-if len(sys.argv) < 3: print('Usage: python build_dataset.py FIRST_GAME_INDEX LAST_GAME_INDEX')
+if len(sys.argv) < 3: print('Usage: python build_dataset.py <FIRST_GAME_INDEX> <LAST_GAME_INDEX>')
 else:
   try:
     first = int(sys.argv[1])
     last = int(sys.argv[2])
     build_training_batch(first, last)
-  except: print('Usage: python build_dataset.py FIRST_GAME_INDEX LAST_GAME_INDEX')
+  except: print('Usage: python build_dataset.py <FIRST_GAME_INDEX> <LAST_GAME_INDEX>')
