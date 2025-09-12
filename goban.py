@@ -40,7 +40,6 @@ def print_board():
     if row < width-1: print()
   print('   ', 'A B C D E F G H J K L M N O P Q R S T'[:width*2-4])
   print('\n    Side to move:', ('BLACK' if side == 1 else 'WHITE'), file=sys.stderr)
-  print('\n              Ko:', ('None' if coords_to_move(ko)[0] == '?' else coords_to_move(ko)), file=sys.stderr)
   print()
 
 def print_groups():

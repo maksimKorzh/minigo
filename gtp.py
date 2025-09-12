@@ -1,6 +1,7 @@
 import sys
 import torch
 import goban
+from search import search
 
 goban.width = 19+2
 goban.init_board()
@@ -24,7 +25,11 @@ while True:
     else:
       goban.pass_move()
       print('=\n')
-  elif 'genmove' in command: print('= pass\n')
+  elif 'genmove' in command:
+    params = command.split()
+    color = goban.BLACK if params[1].lower() == 'b' else goban.WHITE
+    move = search(color)
+    print(f"= {move}\n")
   elif 'history' in command:
     print(goban.move_history, goban.move_count, file=sys.stderr)
     print('=\n')
