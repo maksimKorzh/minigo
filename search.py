@@ -7,8 +7,8 @@ BOARD_SIZE = 19
 
 device = torch.device('cpu')
 model = MinigoNet()
-checkpoint = torch.load('minigo_checkpoint.pth', map_location=device)
-model.load_state_dict(checkpoint['model_state'])
+checkpoint = torch.load('minigo.pth', map_location=device)
+model.load_state_dict(checkpoint)
 model.to(device)
 model.eval()
 
