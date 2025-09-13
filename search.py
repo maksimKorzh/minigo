@@ -125,7 +125,9 @@ def nn_move(board_array, color):
   return (goban.NONE, goban.NONE), value.item()
 
 def search(color):
-  if MCTS: move = mcts(color)
+  if MCTS:
+    move = mcts(color)
+    print(f'Winrate: {Q.get(move, 0):.2f}', file=sys.stderr)
   else:
     move, value = nn_move(goban.board_to_tensor(), color)
     print(f'Winrate: {value:.2f}', file=sys.stderr)
