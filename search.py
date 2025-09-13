@@ -19,7 +19,7 @@ model.eval()
 
 # --- MCTS parameters ---
 CPUCT = 1.5
-NUM_SIMULATIONS = 10
+NUM_SIMULATIONS = 500
 TOP_K = 5
 
 # --- Global MCTS tables ---
@@ -118,13 +118,11 @@ def simulate():
     Q[m] = (old_q * old_n + value) / (old_n + 1)
     N[m] = old_n + 1
 
-  print('MCTS info:')
   for move in P:
     visits = N.get(move, 0)
     winrate = Q.get(move, 0)
     prior = P.get(move, 0)
-    print(f'info move {goban.coords_to_move(move)} visits {visits} winrate: {winrate:.3f} prior: {prior:.3f}')
-  print("-"*50)
+    print(f'info move {goban.coords_to_move(move)} visits {visits} winrate {winrate:.6f} prior {prior:.6f}', end=' ')
 
   # Restore board
   goban.board = board_copy
@@ -132,9 +130,8 @@ def simulate():
   goban.ko = ko_copy
 
 
-
-
-
+#info move Q16 visits 0 edgeVisits 0 utility -0.12444 winrate 0.439639 scoreMean -1.0947 scoreStdev 24.0794 scoreLead -1.0947 scoreSelfplay -1.41354 prior 0.123982 lcb -4.56036 utilityLcb -14 weight 0 order 0 pv Q16 info move Q4 visits 0 edgeVisits 0 utility -0.12444 winrate 0.439639 scoreMean -1.0947 scoreStdev 24.0794 scoreLead -1.0947 scoreSelfplay -1.41354 prior 0.123982 lcb -4.56036 utilityLcb -14 weight 0 isSymmetryOf Q16 order 1 pv Q4 info move D16 visits 0 edgeVisits 0 utility -0.12444 winrate 0.439639 scoreMean -1.0947 scoreStdev 24.0794 scoreLead -1.0947 scoreSelfplay -1.41354 prior 0.123982 lcb -4.56036
+#info move R8 visits 0 winrate 0.000 prior 0.013 info move C5 visits 0 winrate 0.000 prior 0.033 info move L17 visits 0 winrate 0.000 prior 0.021 info move D6 visits 0 winrate 0.000 prior 0.052 info move H3 visits 0 winrate 0.000 prior 0.090 info move S4 visits 0 winrate 0.000 prior 0.024 info move D10 visits 0 winrate 0.000 prior 0.090 info move C9 visits 0 winrate 0.000 prior 0.062 info move R16 visits 13 winrate -0.080 prior 0.096 info move Q16 visits 10 wi
 
 
 
@@ -177,10 +174,10 @@ def nn_move(board_array, color):
     if i > 5: return [goban.NONE, goban.NONE], value.item()
   return [goban.NONE, goban.NONE], value.item()
 
-goban.width = 19+2
-goban.init_board()
-move = select_action()
-col, row = move
-if move == (goban.NONE, goban.NONE): goban.pass_move()
-else: goban.play(col, row, goban.side)
-goban.print_board()
+#goban.width = 19+2
+#goban.init_board()
+#move = select_action()
+#col, row = move
+#if move == (goban.NONE, goban.NONE): goban.pass_move()
+#else: goban.play(col, row, goban.side)
+#goban.print_board()

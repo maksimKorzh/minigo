@@ -1,7 +1,7 @@
 import sys
 import torch
 import goban
-from search import search
+from search import search, select_action
 
 goban.width = 19+2
 goban.init_board()
@@ -30,8 +30,6 @@ while True:
     color = goban.BLACK if params[1].lower() == 'b' else goban.WHITE
     move = search(color)
     print(f"= {move}\n")
-  elif 'history' in command:
-    print(goban.move_history, goban.move_count, file=sys.stderr)
-    print('=\n')
+  elif 'analyze' in command: select_action()
   elif 'quit' in command: sys.exit()
   else: print('=\n')
