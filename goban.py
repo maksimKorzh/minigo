@@ -37,75 +37,9 @@ def print_board():
         print((' ' if rown < 10 else '') + str(rown), end=' ')
       if board[row][col] == FENCE: continue
       if col == ko[0] and row == ko[1]: print('#', end=' ')
-      else:
-        if len(move_history) < 3:
-          if len(move_history) == 1 and move_history[-1]['move'] == [col, row]:
-            print(['.', 'X1', 'O1', ''][board[row][col]], end='')
-          elif len(move_history) == 2:
-            if move_history[-1]['move'] == [col, row]:
-              print(['.', 'X2', 'O2', ''][board[row][col]], end='')
-            elif move_history[-2]['move'] == [col, row]:
-              print(['.', 'X1', 'O1', ''][board[row][col]], end='')
-            else:
-              print(['.', 'X', 'O', ''][board[row][col]], end=' ')
-          else:
-            print(['.', 'X', 'O', ''][board[row][col]], end=' ')
-        else:
-          if len(move_history) and move_history[-1]['move'] == [col, row]:
-            print(['.', 'X3', 'O3', ''][board[row][col]], end='')
-          elif len(move_history) > 1 and move_history[-2]['move'] == [col, row]:
-            print(['.', 'X2', 'O2', ''][board[row][col]], end='')
-          elif len(move_history) > 2 and move_history[-3]['move'] == [col, row]:
-            print(['.', 'X1', 'O1', ''][board[row][col]], end='')
-          else:
-            print(['.', 'X', 'O', ''][board[row][col]], end=' ')
+      else: print(['.', 'X', 'O', ''][board[row][col]], end=' ')
     if row < width-1: print()
-  print('1')
-  print('2')
-  print('3')
-  print('4')
   print()
-  #print('\n    Side to move:', ('BLACK' if side == 1 else 'WHITE'), file=sys.stderr)
-
-
-#= MoveNum: 4 HASH: 4EC1C1D04B1A05D40A6606F557089ADF
-#   A B C D E F G H J K L M N O P Q R S T
-#19 . . . . . . . . . . . . . . . . . . .
-#18 . . . . . . . . . . . . . . . . . . .
-#17 . . . . . . . . . . . . . . . . . . .
-#16 . . . O3. . . . . . . . . . . X . . .
-#15 . . . . . . . . . . . . . . . . . . .
-#14 . . . . . . . . . . . . . . . . . . .
-#13 . . . . . . . . . . . . . . . . . . .
-#12 . . . . . . . . . . . . . . . . . . .
-#11 . . . . . . . . . . . . . . . . . . .
-#10 . . . . . . . . . . . . . . . . . . .
-# 9 . . . . . . . . . . . . . . . . . . .
-# 8 . . . . . . . . . . . . . . . . . . .
-# 7 . . . . . . . . . . . . . . . . . . .
-# 6 . . . . . . . . . . . . . . . . . . .
-# 5 . . . . . . . . . . . . . . . . . . .
-# 4 . . . O1. . . . . . . . . . . X2. . .
-# 3 . . . . . . . . . . . . . . . . . . .
-# 2 . . . . . . . . . . . . . . . . . . .
-# 1 . . . . . . . . . . . . . . . . . . .
-#Next player: Black
-#Rules: {"friendlyPassOk":false,"hasButton":false,"ko":"POSITIONAL","komi":7.5,"scoring":"AREA","suicide":true,"tax":"NONE","whiteHandicapBonus":"0"}
-#B stones captured: 0
-#W stones captured: 0
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 def print_groups():
   print('    Black groups:')
