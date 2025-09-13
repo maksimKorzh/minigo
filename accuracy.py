@@ -9,13 +9,13 @@ try:
   test_path = sys.argv[3]
   device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
   model = MinigoNet().to(device)
-  checkpoint = torch.load('./test/minigo.pth', map_location=device)
+  checkpoint = torch.load(model_path, map_location=device)
   model.load_state_dict(checkpoint)
   model.eval()
   
   for file_name in [pred_path, test_path]:
     if file_name.endswith(".pt"):
-      states, moves, values = torch.load(os.path.join(folder, file_name))
+      states, moves, values = torch.load(os.path.join(file_name))
       states = states.float().to(device)
       moves = moves.long().to(device)
       values = values.float().to(device)
