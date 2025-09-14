@@ -1,10 +1,12 @@
 import sys
 import torch
 import goban
-from search import search
+import threading
+from search import search, mcts, analysis
 
 goban.width = 19+2
 goban.init_board()
+thread = None
 
 while True:
   command = input()
@@ -16,6 +18,8 @@ while True:
   elif 'clear_board' in command: goban.init_board(); print('=\n')
   elif 'showboard' in command: print('= ', end=''); goban.print_board()
   elif 'play' in command:
+    analysis['is'] = False
+    thread.join()
     if 'pass'.upper() not in command:
       params = command.split()
       color = goban.BLACK if params[1] == 'B' else goban.WHITE
@@ -31,9 +35,15 @@ while True:
     move = search(color, False)
     print(f'= {move}\n')
   elif 'analyze' in command:
+    analysis['is'] = True
     params = command.split()
     color = goban.side
-    search(color, True)
+    thread = threading.Thread(target=mcts, args=(color, True))
+    thread.start()
+    print(f'=\n')
+  elif 'stop' in command:
+    analysis['is'] = False
+    thread.join()
     print(f'=\n')
   elif 'quit' in command: sys.exit()
   else: print('=\n')

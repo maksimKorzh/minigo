@@ -6,10 +6,11 @@ from copy import deepcopy
 from model import MinigoNet
 
 MCTS = True
+analysis = {'is': False}
 
 BOARD_SIZE = 19
 CPUCT = 1.5
-NUM_SIMULATIONS = 10
+NUM_SIMULATIONS = 20
 TOP_K = 5
 Q = {}
 N = {}
@@ -57,7 +58,12 @@ def top_k_moves():
 def mcts(color, ponder):
   old_side = goban.side
   goban.side = color
-  for _ in range(NUM_SIMULATIONS): simulate(ponder)
+  if not analysis['is']:
+    for _ in range(NUM_SIMULATIONS): simulate(ponder)
+  else:
+    while analysis['is'] == True:
+      simulate(ponder)
+      if analysis['is'] == False: break
   root_moves, _ = top_k_moves()
   legal_root_moves = [m for m,_ in root_moves if is_legal(m, goban.side)]
   best = max(legal_root_moves, key=lambda m: N.get(m, 0))
@@ -98,11 +104,14 @@ def simulate(ponder):
     Q[m] = (old_q * old_n + value) / (old_n + 1)
     N[m] = old_n + 1
   for move in P:
+    if analysis['is'] == False: break
     if not is_legal(move, goban.side): continue
     visits = N.get(move, 0)
     winrate = Q.get(move, 0)
     prior = P.get(move, 0)
-    if ponder: print(f'info move {goban.coords_to_move(move)} visits {visits} winrate {winrate:.6f} prior {prior:.6f}', end=' ')
+    if ponder:
+      if analysis['is'] == True:
+        print(f'info move {goban.coords_to_move(move)} visits {visits} winrate {winrate:.6f} prior {prior:.6f}', end=' ')
     else: print(f'info move {goban.coords_to_move(move)} visits {visits} winrate {winrate:.6f} prior {prior:.6f}', file=sys.stderr)
     if goban.board[move[1]][move[0]] != goban.EMPTY: print(f'ERROR move: {goban.coords_to_move(move)}', file=sys.stderr)
   goban.board = board_copy
