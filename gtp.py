@@ -28,7 +28,12 @@ while True:
   elif 'genmove' in command:
     params = command.split()
     color = goban.BLACK if params[1].lower() == 'b' else goban.WHITE
-    move = search(color)
-    print(f"= {move}\n")
+    move = search(color, False)
+    print(f'= {move}\n')
+  elif 'analyze' in command:
+    params = command.split()
+    color = goban.side
+    search(color, True)
+    print(f'=\n')
   elif 'quit' in command: sys.exit()
   else: print('=\n')

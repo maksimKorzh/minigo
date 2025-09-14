@@ -54,18 +54,17 @@ def top_k_moves():
   moves, value = nn_topk_moves(goban.board_to_tensor(), goban.side, TOP_K)
   return moves, value
 
-def mcts(color=None):
-  if color is not None:
-    old_side = goban.side
-    goban.side = color
-  for _ in range(NUM_SIMULATIONS): simulate()
+def mcts(color, ponder):
+  old_side = goban.side
+  goban.side = color
+  for _ in range(NUM_SIMULATIONS): simulate(ponder)
   root_moves, _ = top_k_moves()
   legal_root_moves = [m for m,_ in root_moves if is_legal(m, goban.side)]
   best = max(legal_root_moves, key=lambda m: N.get(m, 0))
-  if color is not None: goban.side = old_side
+  goban.side = old_side
   return best
 
-def simulate():
+def simulate(ponder):
   path = []
   board_copy = deepcopy(goban.board)
   side_copy = goban.side
@@ -103,7 +102,8 @@ def simulate():
     visits = N.get(move, 0)
     winrate = Q.get(move, 0)
     prior = P.get(move, 0)
-    print(f'info move {goban.coords_to_move(move)} visits {visits} winrate {winrate:.6f} prior {prior:.6f}', file=sys.stderr)
+    if ponder: print(f'info move {goban.coords_to_move(move)} visits {visits} winrate {winrate:.6f} prior {prior:.6f}', end=' ')
+    else: print(f'info move {goban.coords_to_move(move)} visits {visits} winrate {winrate:.6f} prior {prior:.6f}', file=sys.stderr)
     if goban.board[move[1]][move[0]] != goban.EMPTY: print(f'ERROR move: {goban.coords_to_move(move)}', file=sys.stderr)
   goban.board = board_copy
   goban.side = side_copy
@@ -124,14 +124,18 @@ def nn_move(board_array, color):
     if i > 5: return (goban.NONE, goban.NONE), value.item()
   return (goban.NONE, goban.NONE), value.item()
 
-def search(color):
+def search(color, ponder):
   if MCTS:
-    move = mcts(color)
-    print(f'Winrate: {Q.get(move, 0):.2f}', file=sys.stderr)
+    move = mcts(color, ponder)
   else:
     move, value = nn_move(goban.board_to_tensor(), color)
     print(f'Winrate: {value:.2f}', file=sys.stderr)
   if move != (goban.NONE, goban.NONE):
     goban.play(move[0], move[1], color)
+    net_move, nn_value = nn_move(goban.board_to_tensor(), color)
+    print(f'\n_NN_ winrate: {nn_value:.2f}', file=sys.stderr)
+    print(f'_NN_ move: {goban.coords_to_move(net_move)}', file=sys.stderr)
+    print(f'\nMCTS winrate: {Q.get(move, 0):.2f}', file=sys.stderr)
+    print(f'MCTS move: {goban.coords_to_move(move)}\n', file=sys.stderr)
     return 'ABCDEFGHJKLMNOPQRST'[move[0]-1] + str(BOARD_SIZE - move[1]+1)
   else: return 'pass'
