@@ -18,8 +18,10 @@ while True:
   elif 'clear_board' in command: goban.init_board(); print('=\n')
   elif 'showboard' in command: print('= ', end=''); goban.print_board()
   elif 'play' in command:
-    analysis['is'] = False
-    thread.join()
+    try:
+      analysis['is'] = False
+      thread.join()
+    except: pass
     if 'pass'.upper() not in command:
       params = command.split()
       color = goban.BLACK if params[1] == 'B' else goban.WHITE

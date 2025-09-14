@@ -10,7 +10,7 @@ analysis = {'is': False}
 
 BOARD_SIZE = 19
 CPUCT = 1.5
-NUM_SIMULATIONS = 20
+NUM_SIMULATIONS = 10
 TOP_K = 5
 Q = {}
 N = {}
@@ -104,7 +104,6 @@ def simulate(ponder):
     Q[m] = (old_q * old_n + value) / (old_n + 1)
     N[m] = old_n + 1
   for move in P:
-    if analysis['is'] == False: break
     if not is_legal(move, goban.side): continue
     visits = N.get(move, 0)
     winrate = Q.get(move, 0)
@@ -134,8 +133,13 @@ def nn_move(board_array, color):
   return (goban.NONE, goban.NONE), value.item()
 
 def search(color, ponder):
+  Q.clear()
+  N.clear()
+  P.clear()
+  import gc
+  gc.collect()
   if MCTS:
-    move = mcts(color, ponder)
+    move = mcts(color, False)
   else:
     move, value = nn_move(goban.board_to_tensor(), color)
     print(f'Winrate: {value:.2f}', file=sys.stderr)
