@@ -66,6 +66,8 @@ def mcts(color, ponder):
       if analysis['is'] == False: break
   root_moves, _ = top_k_moves()
   legal_root_moves = [m for m,_ in root_moves if is_legal(m, goban.side)]
+  print('\nSearched moves:\n', file=sys.stderr)
+  for move in legal_root_moves: print(f'{goban.coords_to_move(move)}\t{Q.get(move, 0):.2f}', file=sys.stderr)
   best = max(legal_root_moves, key=lambda m: N.get(m, 0))
   goban.side = old_side
   return best
