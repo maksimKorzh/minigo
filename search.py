@@ -130,8 +130,6 @@ def simulate(color, ponder):
         if visits < 10: pv = ' '
         info_str['val'] += 'info move ' + m + ' visits ' + str(visits) + ' winrate ' + str(winrate) + ' prior ' + str(prior) + pv
       else: last_out = True
-    else: print(f'info move {goban.coords_to_move(move)} visits {visits} winrate {winrate:.6f} prior {prior:.6f}', file=sys.stderr)
-    if goban.board[move[1]][move[0]] != goban.EMPTY: print(f'ERROR move: {goban.coords_to_move(move)}', file=sys.stderr)
   if ponder:
     if first_out == True and last_out == False: print('=', file=sys.stdout, flush=True)
     print(info_str['val'], file=sys.stdout, flush=True)
@@ -159,13 +157,8 @@ def search(color, ponder):
   if MCTS: move = mcts(color, False)
   else:
     move, value = nn_move(goban.board_to_tensor(), color)
-    print(f'Winrate: {value:.2f}', file=sys.stderr)
   if move != (goban.NONE, goban.NONE):
     goban.play(move[0], move[1], color)
     net_move, nn_value = nn_move(goban.board_to_tensor(), color)
-    print(f'\n_NN_ winrate: {nn_value:.2f}', file=sys.stderr)
-    print(f'_NN_ move: {goban.coords_to_move(net_move)}', file=sys.stderr)
-    print(f'\nMCTS winrate: {Q.get(move, 0):.2f}', file=sys.stderr)
-    print(f'MCTS move: {goban.coords_to_move(move)}\n', file=sys.stderr)
     return 'ABCDEFGHJKLMNOPQRST'[move[0]-1] + str(BOARD_SIZE - move[1]+1)
   else: return 'pass'
