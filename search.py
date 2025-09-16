@@ -18,6 +18,7 @@ TOP_K = 5
 Q = {}
 N = {}
 P = {}
+info_str = ''
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model = MinigoNet()
@@ -40,7 +41,7 @@ def nn_topk_moves(board_array, color, k=TOP_K):
     policy_logits, value = model(board_tensor)
     policy_logits = policy_logits.squeeze(0).cpu().numpy()
     probs = np.exp(policy_logits)
-    probs /= probs.sum()  # softmax
+    probs /= probs.sum()
   move_indices = probs.argsort()[::-1]
   top_moves = []
   for idx in move_indices:
@@ -58,6 +59,7 @@ def top_k_moves():
   return moves, value
 
 def mcts(color, ponder):
+  info_str = ''
   Q.clear()
   N.clear()
   P.clear()
@@ -65,10 +67,10 @@ def mcts(color, ponder):
   old_side = goban.side
   goban.side = color
   if not analysis['is']:
-    for _ in range(NUM_SIMULATIONS): simulate(ponder)
+    for _ in range(NUM_SIMULATIONS): simulate(color, ponder)
   else:
     while analysis['is'] == True:
-      simulate(ponder)
+      simulate(color, ponder)
       if analysis['is'] == False: break
   root_moves, _ = top_k_moves()
   legal_root_moves = [m for m,_ in root_moves if is_legal(m, goban.side)]
@@ -76,8 +78,8 @@ def mcts(color, ponder):
   goban.side = old_side
   return best
 
-def simulate(ponder):
-  global first_out, last_out
+def simulate(color, ponder):
+  global first_out, last_out, info_str
   path = []
   board_copy = deepcopy(goban.board)
   side_copy = goban.side
@@ -110,17 +112,20 @@ def simulate(ponder):
     old_n = N.get(m, 0)
     Q[m] = (old_q * old_n + value) / (old_n + 1)
     N[m] = old_n + 1
-  info_str = ''
   root_moves, _ = top_k_moves()
   for move, prior in root_moves:
     if not is_legal(move, goban.side): continue
     visits = N.get(move, 0)
-    winrate = Q.get(move, 0)
+    p_side = 0.5 * (Q.get(move, 0) + 1.0)
+    if color == goban.BLACK: winrate = p_side
+    else: winrate = 1.0 - p_side
     if ponder:
       if analysis['is'] == True:
         prefix = '=\n' if first_out else ''
         m = goban.coords_to_move(move)
-        info_str += prefix + 'info move ' + m + ' visits ' + str(visits) + ' winrate ' + str(winrate) + ' prior ' + str(prior) + ' pv ' + m + ' '
+        pv = ' pv ' + m + ' '
+        if visits < 10: pv = ' '
+        info_str += prefix + 'info move ' + m + ' visits ' + str(visits) + ' winrate ' + str(winrate) + ' prior ' + str(prior) + pv
         first_out = False
       else:
         if last_out: print('=\n', file=sys.stdout, flush=True)
