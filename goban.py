@@ -29,17 +29,17 @@ def init_board():
   move_history = []
 
 def print_board():
-  print('\n  ', 'A B C D E F G H J K L M N O P Q R S T'[:width*2-4], end='')
+  print('\n  ', 'A B C D E F G H J K L M N O P Q R S T'[:width*2-4], end='', flush=True)
   for row in range(width):
     for col in range(width):
       if col == 0 and row != 0 and row != width-1:
         rown = width-row-1
-        print((' ' if rown < 10 else '') + str(rown), end=' ')
+        print((' ' if rown < 10 else '') + str(rown), end=' ', flush=True)
       if board[row][col] == FENCE: continue
-      if col == ko[0] and row == ko[1]: print('#', end=' ')
-      else: print(['.', 'X', 'O', ''][board[row][col]], end=' ')
-    if row < width-1: print()
-  print()
+      if col == ko[0] and row == ko[1]: print('#', end=' ', flush=True)
+      else: print(['.', 'X', 'O', ''][board[row][col]], end=' ', flush=True)
+    if row < width-1: print(flush=True)
+  print(flush=True)
 
 def print_groups():
   print('    Black groups:')
