@@ -8,6 +8,7 @@ from model import MinigoNet
 
 MCTS = True
 analysis = {'is': False}
+first_out = True
 last_out = True
 
 BOARD_SIZE = 19
@@ -78,7 +79,7 @@ def mcts(color, ponder):
   return best
 
 def simulate(color, ponder):
-  global last_out, info_str
+  global first_out, last_out, info_str
   path = []
   board_copy = deepcopy(goban.board)
   side_copy = goban.side
@@ -120,11 +121,13 @@ def simulate(color, ponder):
     else: winrate = 1.0 - p_side
     if ponder:
       if analysis['is'] == True:
-        prefix = '=\n' if info_str['val'] == '' else ''
+        prefix = '=\n' if first_out else ' '
+        if info_str['val'] == '': prefix = '=\n'
         m = goban.coords_to_move(move)
         pv = ' pv ' + m + ' '
         if visits < 10: pv = ' '
         info_str['val'] += prefix + 'info move ' + m + ' visits ' + str(visits) + ' winrate ' + str(winrate) + ' prior ' + str(prior) + pv
+        first_out = False
       else:
         if last_out: print('=\n', file=sys.stdout, flush=True)
         last_out = False
