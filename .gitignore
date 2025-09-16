@@ -2,4 +2,3 @@ __pycache__/
 games/
 *.pt
 *.txt
-*.pth
