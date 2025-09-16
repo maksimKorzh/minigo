@@ -9,6 +9,12 @@ It should be roughly FOX 1 dan
 2. Install python dependencies
 3. Run "python gtp.py" to interact with engine in terminal or use Sabaki GUI
 
+# Settings
+Feel free to change following variables in "search.py":
+1. Set MCTS=False to play against bare net
+2. Set NUM_SIMULATIONS=100 to make MCTS do 100 playouts
+3. Set TOP_K=10 to search top 10 NN moves
+
 # What neural net is used?
 I trained a 10 residual block net with 128 convolutional filters from scratch 
 using 2097422 samples for 5 epochs resulting in 41.03% policy
