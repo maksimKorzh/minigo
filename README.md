@@ -17,7 +17,7 @@ Feel free to change following variables in "search.py":
 
 # Analysis mode
 Should be working just like katago, in Sabaki GUI mark "set as analyzer"
-to make the engine isearching infinitely and outputting winrates.
+to make the engine searching infinitely and outputting winrates.
 
 # What neural net is used?
 I trained a 10 residual block net with 128 convolutional filters from scratch 
