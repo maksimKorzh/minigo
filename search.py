@@ -59,6 +59,8 @@ def top_k_moves():
   return moves, value
 
 def mcts(color, ponder):
+  first_out = True
+  last_out = True
   info_str['val'] = ''
   Q.clear()
   N.clear()
@@ -121,19 +123,19 @@ def simulate(color, ponder):
     else: winrate = 1.0 - p_side
     if ponder:
       if analysis['is'] == True:
-        prefix = '=\n' if first_out else ' '
-        if info_str['val'] == '': prefix = '=\n'
         m = goban.coords_to_move(move)
         pv = ' pv ' + m + ' '
         if visits < 10: pv = ' '
-        info_str['val'] += prefix + 'info move ' + m + ' visits ' + str(visits) + ' winrate ' + str(winrate) + ' prior ' + str(prior) + pv
-        first_out = False
+        info_str['val'] += 'info move ' + m + ' visits ' + str(visits) + ' winrate ' + str(winrate) + ' prior ' + str(prior) + pv
       else:
         if last_out: print('=\n', file=sys.stdout, flush=True)
         last_out = False
     else: print(f'info move {goban.coords_to_move(move)} visits {visits} winrate {winrate:.6f} prior {prior:.6f}', file=sys.stderr)
     if goban.board[move[1]][move[0]] != goban.EMPTY: print(f'ERROR move: {goban.coords_to_move(move)}', file=sys.stderr)
-  if ponder: print(info_str['val'], file=sys.stdout, flush=True)
+  if ponder:
+    if first_out or info_str['val'] == '': print('=', file=sys.stdout, flush=True)
+    print(info_str['val'], file=sys.stdout, flush=True)
+    first_out = False
   goban.board = board_copy
   goban.side = side_copy
   goban.ko = ko_copy
