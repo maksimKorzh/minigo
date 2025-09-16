@@ -2,7 +2,7 @@ import sys
 import torch
 import goban
 import threading
-from search import search, mcts, analysis
+from search import *
 
 goban.width = 19+2
 goban.init_board()
@@ -10,10 +10,13 @@ thread = None
 
 while True:
   command = input()
+  analysis['is'] = False
+  try: thread.join()
+  except: pass
   if 'name' in command: print('= minigo\n')
   elif 'protocol_version' in command: print('= 2\n');
   elif 'version' in command: print('=', 'by Code Monkey King\n')
-  elif 'list_commands' in command: print('= protocol_version\n')
+  elif 'list_commands' in command: print('= protocol_version\nanalyze\n')
   elif 'boardsize' in command: goban.width = int(command.split()[1])+2; print('=\n')
   elif 'clear_board' in command: goban.init_board(); print('=\n')
   elif 'showboard' in command: print('= ', end=''); goban.print_board()
@@ -42,10 +45,9 @@ while True:
     color = goban.side
     thread = threading.Thread(target=mcts, args=(color, True))
     thread.start()
-    print(f'=\n')
   elif 'stop' in command:
-    analysis['is'] = False
-    thread.join()
-    print(f'=\n')
-  elif 'quit' in command: sys.exit()
+    print('=\n')
+  elif 'quit' in command:
+    print('=\n')
+    sys.exit()
   else: print('=\n')

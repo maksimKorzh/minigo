@@ -1,3 +1,4 @@
+import gc
 import sys
 import torch
 import goban
@@ -7,6 +8,8 @@ from model import MinigoNet
 
 MCTS = True
 analysis = {'is': False}
+first_out = True
+last_out = True
 
 BOARD_SIZE = 19
 CPUCT = 1.5
@@ -43,9 +46,8 @@ def nn_topk_moves(board_array, color, k=TOP_K):
   for idx in move_indices:
     row, col = divmod(idx, BOARD_SIZE)
     r, c = row+1, col+1
-    if goban.board[r][c] == goban.EMPTY and (c, r) != goban.ko:
-      if not goban.is_suicide(c, r, color):
-        top_moves.append(((c, r), float(probs[idx])))
+    if is_legal((c, r), color):
+      top_moves.append(((c, r), float(probs[idx])))
     if len(top_moves) >= k: break
   while len(top_moves) < k:
     top_moves.append(((goban.NONE, goban.NONE), 0.0))
@@ -56,6 +58,10 @@ def top_k_moves():
   return moves, value
 
 def mcts(color, ponder):
+  Q.clear()
+  N.clear()
+  P.clear()
+  gc.collect()
   old_side = goban.side
   goban.side = color
   if not analysis['is']:
@@ -66,13 +72,12 @@ def mcts(color, ponder):
       if analysis['is'] == False: break
   root_moves, _ = top_k_moves()
   legal_root_moves = [m for m,_ in root_moves if is_legal(m, goban.side)]
-  print('\nSearched moves:\n', file=sys.stderr)
-  for move in legal_root_moves: print(f'{goban.coords_to_move(move)}\t{Q.get(move, 0):.2f}', file=sys.stderr)
   best = max(legal_root_moves, key=lambda m: N.get(m, 0))
   goban.side = old_side
   return best
 
 def simulate(ponder):
+  global first_out, last_out
   path = []
   board_copy = deepcopy(goban.board)
   side_copy = goban.side
@@ -105,16 +110,24 @@ def simulate(ponder):
     old_n = N.get(m, 0)
     Q[m] = (old_q * old_n + value) / (old_n + 1)
     N[m] = old_n + 1
-  for move in P:
+  info_str = ''
+  root_moves, _ = top_k_moves()
+  for move, prior in root_moves:
     if not is_legal(move, goban.side): continue
     visits = N.get(move, 0)
     winrate = Q.get(move, 0)
-    prior = P.get(move, 0)
     if ponder:
       if analysis['is'] == True:
-        print(f'info move {goban.coords_to_move(move)} visits {visits} winrate {winrate:.6f} prior {prior:.6f}', end=' ')
+        prefix = '=\n' if first_out else ''
+        m = goban.coords_to_move(move)
+        info_str += prefix + 'info move ' + m + ' visits ' + str(visits) + ' winrate ' + str(winrate) + ' prior ' + str(prior) + ' pv ' + m + ' '
+        first_out = False
+      else:
+        if last_out: print('=\n', file=sys.stdout, flush=True)
+        last_out = False
     else: print(f'info move {goban.coords_to_move(move)} visits {visits} winrate {winrate:.6f} prior {prior:.6f}', file=sys.stderr)
     if goban.board[move[1]][move[0]] != goban.EMPTY: print(f'ERROR move: {goban.coords_to_move(move)}', file=sys.stderr)
+  if ponder: print(info_str, file=sys.stdout, flush=True)
   goban.board = board_copy
   goban.side = side_copy
   goban.ko = ko_copy
@@ -134,14 +147,11 @@ def nn_move(board_array, color):
     if i > 5: return (goban.NONE, goban.NONE), value.item()
   return (goban.NONE, goban.NONE), value.item()
 
+def analyze(color, ponder):
+  move = mcts(color, False)
+
 def search(color, ponder):
-  Q.clear()
-  N.clear()
-  P.clear()
-  import gc
-  gc.collect()
-  if MCTS:
-    move = mcts(color, False)
+  if MCTS: move = mcts(color, False)
   else:
     move, value = nn_move(goban.board_to_tensor(), color)
     print(f'Winrate: {value:.2f}', file=sys.stderr)
