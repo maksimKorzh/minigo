@@ -10,6 +10,7 @@ thread = None
 
 while True:
   command = input()
+  info_str['val'] = ''
   analysis['is'] = False
   try: thread.join()
   except: pass
