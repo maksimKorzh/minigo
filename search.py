@@ -7,9 +7,11 @@ from copy import deepcopy
 from model import MinigoNet
 
 MCTS = True
+
 analysis = {'is': False}
 first_out = True
-last_out = True
+last_out = False
+info_str = {'val': ''}
 
 BOARD_SIZE = 19
 CPUCT = 1.5
@@ -18,7 +20,6 @@ TOP_K = 5
 Q = {}
 N = {}
 P = {}
-info_str = {'val': ''}
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model = MinigoNet()
@@ -59,8 +60,9 @@ def top_k_moves():
   return moves, value
 
 def mcts(color, ponder):
+  global first_out, last_out, info_str
   first_out = True
-  last_out = True
+  last_out = False
   info_str['val'] = ''
   Q.clear()
   N.clear()
@@ -127,13 +129,11 @@ def simulate(color, ponder):
         pv = ' pv ' + m + ' '
         if visits < 10: pv = ' '
         info_str['val'] += 'info move ' + m + ' visits ' + str(visits) + ' winrate ' + str(winrate) + ' prior ' + str(prior) + pv
-      else:
-        if last_out: print('=\n', file=sys.stdout, flush=True)
-        last_out = False
+      else: last_out = True
     else: print(f'info move {goban.coords_to_move(move)} visits {visits} winrate {winrate:.6f} prior {prior:.6f}', file=sys.stderr)
     if goban.board[move[1]][move[0]] != goban.EMPTY: print(f'ERROR move: {goban.coords_to_move(move)}', file=sys.stderr)
   if ponder:
-    if first_out or info_str['val'] == '': print('=', file=sys.stdout, flush=True)
+    if first_out == True and last_out == False: print('=', file=sys.stdout, flush=True)
     print(info_str['val'], file=sys.stdout, flush=True)
     first_out = False
   goban.board = board_copy
@@ -154,9 +154,6 @@ def nn_move(board_array, color):
       return (int(col+1), int(row+1)), value.item()
     if i > 5: return (goban.NONE, goban.NONE), value.item()
   return (goban.NONE, goban.NONE), value.item()
-
-def analyze(color, ponder):
-  move = mcts(color, False)
 
 def search(color, ponder):
   if MCTS: move = mcts(color, False)
