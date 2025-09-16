@@ -1,7 +1,0 @@
-# Mount google drive to colab
-from google.colab import drive
-drive.mount('/content/drive')
-
-# Download file from colab
-from google.colab import files
-files.download('filename')
