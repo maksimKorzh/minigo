@@ -45,12 +45,13 @@ def nn_topk_moves(board_array, color, k=TOP_K):
     probs /= probs.sum()
   move_indices = probs.argsort()[::-1]
   top_moves = []
+  illegal_count = 0
   for idx in move_indices:
     row, col = divmod(idx, BOARD_SIZE)
     r, c = row+1, col+1
-    if is_legal((c, r), color):
-      top_moves.append(((c, r), float(probs[idx])))
-    if len(top_moves) >= k: break
+    if is_legal((c, r), color): top_moves.append(((c, r), float(probs[idx])))
+    else: illegal_count += 1
+    if len(top_moves) >= k or illegal_count >= k: break
   while len(top_moves) < k:
     top_moves.append(((goban.NONE, goban.NONE), 0.0))
   return top_moves, float(value.item())
@@ -70,14 +71,15 @@ def mcts(color, ponder):
   gc.collect()
   old_side = goban.side
   goban.side = color
+  root_moves, _ = top_k_moves()
+  legal_root_moves = [m for m,_ in root_moves if is_legal(m, goban.side)]
+  if legal_root_moves[-1] == (goban.NONE, goban.NONE): return legal_root_moves[-1]
   if not analysis['is']:
     for _ in range(NUM_SIMULATIONS): simulate(color, ponder)
   else:
     while analysis['is'] == True:
       simulate(color, ponder)
       if analysis['is'] == False: break
-  root_moves, _ = top_k_moves()
-  legal_root_moves = [m for m,_ in root_moves if is_legal(m, goban.side)]
   best = max(legal_root_moves, key=lambda m: N.get(m, 0))
   goban.side = old_side
   return best
