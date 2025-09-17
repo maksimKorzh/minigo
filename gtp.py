@@ -26,7 +26,7 @@ while True:
       analysis['is'] = False
       thread.join()
     except: pass
-    if 'pass'.upper() not in command:
+    if 'pass' not in command and 'pass'.upper() not in command:
       params = command.split()
       color = goban.BLACK if params[1] == 'B' else goban.WHITE
       col, row = goban.move_to_coords(params[2])
